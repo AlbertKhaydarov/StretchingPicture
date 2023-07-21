@@ -7,7 +7,7 @@
 
 import UIKit
 
-class ViewController: UIViewController{
+class ViewController: UIViewController, UIScrollViewDelegate{
     
     private lazy var scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -19,6 +19,12 @@ class ViewController: UIViewController{
         scrollView.verticalScrollIndicatorInsets.top = imageHeight - view.safeAreaInsets.top
         return scrollView
     }()
+    private lazy var contentView: UIView = {
+        let contentView = UIView()
+        contentView.frame.size = CGSize(width: scrollView.frame.width, height: scrollView.frame.height)
+        return contentView
+    }()
+    private let imageHeight: CGFloat = 270
     
     private lazy var imageView: UIImageView = {
         let imageView = UIImageView(image: .init(named: "displayImage"))
@@ -28,24 +34,20 @@ class ViewController: UIViewController{
         imageView.frame.size = CGSize(width:view.frame.width, height: imageHeight)
         return imageView
     }()
-    
-    private let imageHeight: CGFloat = 270
-    
+   
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
         view.addSubview(scrollView)
-        scrollView.addSubview(imageView)
+        scrollView.addSubview(contentView)
+        contentView.addSubview(imageView)
         scrollView.delegate = self
     }
-}
-extension ViewController: UIScrollViewDelegate{
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         if scrollView.contentOffset.y < 0 {
-            let imageViewHeight = imageHeight - scrollView.contentOffset.y
             imageView.frame.origin = CGPoint(x: 0, y: scrollView.contentOffset.y)
-            imageView.frame.size = CGSize(width: view.frame.width, height: imageViewHeight)
-            scrollView.verticalScrollIndicatorInsets.top = imageViewHeight - view.safeAreaInsets.top
+            imageView.frame.size = CGSize(width: view.frame.width, height: imageHeight - scrollView.contentOffset.y)
+            scrollView.verticalScrollIndicatorInsets.top = imageHeight - scrollView.contentOffset.y - view.safeAreaInsets.top
         }
     }
 }
